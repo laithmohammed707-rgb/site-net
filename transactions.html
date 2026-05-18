@@ -1,0 +1,78 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>إجمالي التحويلات</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+        body { background: #0a0a0f; color: white; font-family: 'Cairo', sans-serif; margin: 0; padding: 40px; }
+        
+        .container { max-width: 1000px; margin: auto; }
+        
+        .header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        
+        .stats-card { background: rgba(99, 102, 241, 0.1); border: 1px solid #6366f1; padding: 15px 25px; border-radius: 15px; }
+
+        table { width: 100%; border-collapse: collapse; background: rgba(255,255,255,0.02); border-radius: 15px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
+        
+        th, td { padding: 15px; text-align: right; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        
+        th { background: rgba(255,255,255,0.05); color: #8b5cf6; font-weight: 700; }
+        
+        tr:hover { background: rgba(255,255,255,0.03); }
+
+        .status { padding: 5px 12px; border-radius: 20px; font-size: 12px; }
+        .status-pending { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+        .status-completed { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+
+        .btn-back { color: #ccc; text-decoration: none; font-size: 14px; margin-bottom: 20px; display: inline-block; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <a href="{{ url_for('main.dashboard') }}" class="btn-back">⬅ العودة للوحة التحكم</a>
+    
+    <div class="header-section">
+        <h1>💸 متابعة العمليات المالية</h1>
+        <div class="stats-card">
+            <span>إجمالي التحويلات: </span>
+            <strong style="font-size: 20px;">${{ total }}</strong>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>التاريخ</th>
+                <th>اسم صاحب البطاقة</th>
+                <th>آخر 4 أرقام</th>
+                <th>المبلغ</th>
+                <th>الحالة</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for trans in transactions %}
+            <tr>
+                <td>{{ trans.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>{{ trans.cardholder_name }}</td>
+                <td>**** {{ trans.card_last4 }}</td>
+                <td>${{ trans.amount }}</td>
+                <td>
+                    <span class="status {{ 'status-completed' if trans.status == 'completed' else 'status-pending' }}">
+                        {{ 'مكتملة' if trans.status == 'completed' else 'قيد الانتظار' }}
+                    </span>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 30px; opacity: 0.5;">لا توجد عمليات مالية حالياً.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>

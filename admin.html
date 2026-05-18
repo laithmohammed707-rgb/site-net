@@ -1,0 +1,35 @@
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Email</th>
+            <th>الاسم</th>
+            <th>البطاقة</th>
+            <th>المبلغ</th>
+            <th>الحالة</th>
+            <th>التاريخ</th>
+        </tr>
+    </thead>
+   <tbody>
+        {% for t in transactions %}
+        <tr>
+            <td>{{ t.id }}</td>
+            
+            <!-- إذا عندك email -->
+            <td>{{ t.user.email if t.user and t.user.email else t.user.username }}</td>
+            
+            <td>{{ t.cardholder_name or '-' }}</td>
+            
+            <!-- عرض آخر 4 أرقام -->
+            <td>****{{ t.card_last4 }}</td>
+            
+            <td>${{ "%.2f"|format(t.amount|float) }}</td>
+            
+            <td class="status-{{ t.status }}">{{ t.status }}</td>
+            
+            <td>{{ t.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+

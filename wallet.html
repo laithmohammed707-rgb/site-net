@@ -1,0 +1,242 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        التحويلات المالية
+    </title>
+
+    <style>
+
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:'Cairo', sans-serif;
+        }
+
+        body{
+            background:#0a0a0f;
+            color:white;
+            padding:40px;
+        }
+
+        .header{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:30px;
+        }
+
+        .title{
+            font-size:28px;
+            font-weight:bold;
+        }
+
+        .btn-back{
+            text-decoration:none;
+            color:white;
+            background:#374151;
+            padding:12px 18px;
+            border-radius:12px;
+        }
+
+        .stats-box{
+            background:rgba(255,255,255,0.03);
+            border:1px solid rgba(255,255,255,0.08);
+            padding:25px;
+            border-radius:20px;
+            margin-bottom:30px;
+        }
+
+        .stats-box h2{
+            color:#8b5cf6;
+            margin-bottom:10px;
+        }
+
+        .table-container{
+            overflow-x:auto;
+        }
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+            background:rgba(255,255,255,0.03);
+            border-radius:20px;
+            overflow:hidden;
+        }
+
+        th{
+            background:#111827;
+            padding:18px;
+            text-align:center;
+        }
+
+        td{
+            padding:16px;
+            text-align:center;
+            border-bottom:1px solid rgba(255,255,255,0.05);
+        }
+
+        tr:hover{
+            background:rgba(255,255,255,0.03);
+        }
+
+        .status-success{
+            color:#22c55e;
+            font-weight:bold;
+        }
+
+        .status-pending{
+            color:#f59e0b;
+            font-weight:bold;
+        }
+
+        .empty{
+            text-align:center;
+            padding:30px;
+            color:#9ca3af;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="header">
+
+        <div class="title">
+            💸 التحويلات المالية
+        </div>
+
+        <a
+            href="{{ url_for('main.dashboard') }}"
+            class="btn-back"
+        >
+            العودة للرئيسية
+        </a>
+
+    </div>
+
+    <!-- الإحصائيات -->
+
+    <div class="stats-box">
+
+        <h2>
+            إجمالي التحويلات
+        </h2>
+
+        <p>
+            {{ total_amount }} $
+        </p>
+
+    </div>
+
+    <!-- جدول العمليات -->
+
+    <div class="table-container">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        #
+                    </th>
+
+                    <th>
+                        المبلغ
+                    </th>
+
+                    <th>
+                        الحالة
+                    </th>
+
+                    <th>
+                        التاريخ
+                    </th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% if transactions %}
+
+                    {% for transaction in transactions %}
+
+                    <tr>
+
+                        <td>
+                            {{ transaction.id }}
+                        </td>
+
+                        <td>
+                            {{ transaction.amount }} $
+                        </td>
+
+                        <td>
+
+                            {% if transaction.status == 'success' %}
+
+                                <span class="status-success">
+                                    ناجحة
+                                </span>
+
+                            {% else %}
+
+                                <span class="status-pending">
+                                    قيد الانتظار
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+                            {{ transaction.created_at.strftime('%Y-%m-%d %H:%M') }}
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <tr>
+
+                        <td
+                            colspan="4"
+                            class="empty"
+                        >
+                            لا توجد عمليات تحويل
+                        </td>
+
+                    </tr>
+
+                {% endif %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</body>
+
+</html>

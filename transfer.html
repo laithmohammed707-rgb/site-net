@@ -1,0 +1,203 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تطبيق البطاقة - تحويل الأموال</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
+
+        :root {
+            --bg-dark: #0b0e14;
+            --glass-bg: rgba(23, 28, 41, 0.8);
+            --accent-gradient: linear-gradient(135deg, #4f46e5, #9333ea);
+            --input-bg: #111622;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --text-main: #ffffff;
+            --text-muted: #94a3b8;
+            --success: #22c55e;
+            --error: #ef4444;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at 15% 20%, rgba(79, 70, 229, 0.1), transparent 40%),
+                              radial-gradient(circle at 85% 80%, rgba(147, 51, 234, 0.1), transparent 40%);
+            color: var(--text-main);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container { max-width: 850px; margin: 0 auto; }
+
+        .alert { padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center; font-weight: 600; }
+        .alert-success { background: rgba(34, 197, 94, 0.2); color: var(--success); border: 1px solid var(--success); }
+        .alert-error { background: rgba(239, 68, 68, 0.2); color: var(--error); border: 1px solid var(--error); }
+
+        .navbar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px 25px; background: var(--glass-bg); backdrop-filter: blur(10px);
+            border-radius: 16px; border: 1px solid var(--border-color); margin-bottom: 30px;
+        }
+
+        .glass-card {
+            background: var(--glass-bg); backdrop-filter: blur(15px);
+            border: 1px solid var(--border-color); border-radius: 20px;
+            padding: 30px; margin-bottom: 25px;
+        }
+
+        .section-title { color: var(--text-muted); font-size: 0.85rem; margin: 20px 0 10px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; grid-column: 1 / -1; }
+
+        /* نظام الشبكة المرن */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+        .form-group label { font-size: 0.85rem; color: var(--text-muted); }
+        .form-group input { background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; color: white; transition: 0.3s; }
+        .form-group input:focus { border-color: #6366f1; outline: none; box-shadow: 0 0 8px rgba(99, 102, 241, 0.3); }
+
+        .span-2 { grid-column: 1 / -1; }
+
+        .btn-submit {
+            background: var(--accent-gradient); color: white; border: none; padding: 15px;
+            border-radius: 12px; font-weight: 700; cursor: pointer; width: 100%; transition: 0.3s;
+            margin-top: 20px; font-size: 1rem;
+        }
+        .btn-submit:hover { opacity: 0.9; transform: translateY(-2px); }
+
+        /* الجدول */
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th { text-align: right; color: var(--text-muted); padding: 15px 10px; border-bottom: 1px solid var(--border-color); font-size: 0.9rem; }
+        td { padding: 15px 10px; border-bottom: 1px solid rgba(255,255,255,0.02); font-size: 0.9rem; }
+
+        @media (max-width: 650px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .navbar { flex-direction: column; gap: 10px; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'success' if category == 'success' else 'error' }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <nav class="navbar">
+        <div class="navbar-brand" style="font-weight: 700; font-size: 1.2rem;">💳 تطبيق البطاقة</div>
+        <div class="user-info">
+            <span>مرحباً بك</span>
+            <a href="#" style="color: #ef4444; margin-right: 15px; text-decoration: none;">خروج</a>
+        </div>
+    </nav>
+
+    <div class="glass-card">
+        <h2 style="margin-bottom: 20px;">🚀 إجراء عملية تحويل</h2>
+        
+        <form action="{{ url_for('transfer.handle_transfer') }}" method="POST" class="form-grid">
+
+            <div class="section-title">👤 معلومات صاحب البطاقة</div>
+            <div class="form-group">
+                <label>الاسم الأول</label>
+                <input type="text" name="first_name" required placeholder="">
+            </div>
+            <div class="form-group">
+                <label>الاسم الأخير</label>
+                <input type="text" name="last_name" required placeholder="">
+            </div>
+            <div class="form-group span-2">
+                <label>رقم الهاتف</label>
+                <input type="tel" name="phone" placeholder="" required>
+            </div>
+
+            <div class="section-title">💳 تفاصيل البطاقة</div>
+            <div class="form-group span-2">
+                <label>رقم البطاقة</label>
+                <input type="text" id="card_number" name="card_number" placeholder="" required>
+            </div>
+            <div class="form-group">
+                <label>تاريخ الانتهاء</label>
+                <input type="text" id="expiry" name="expiry" placeholder="MM/YY" required>
+            </div>
+            <div class="form-group">
+                <label>رمز الأمان (CVV)</label>
+                <input type="text" name="cvv" maxlength="3" required placeholder="">
+            </div>
+
+            <div class="section-title">📍 تفاصيل إضافية</div>
+            <div class="form-group">
+                <label>المبلغ ($)</label>
+                <input type="number" name="amount" step="0.01" required placeholder="0.00">
+            </div>
+            <div class="form-group">
+                <label>الرمز البريدي</label>
+                <input type="text" name="zip_code" placeholder="">
+            </div>
+            <div class="form-group span-2">
+                <label>البريد الإلكتروني</label>
+                <input type="email" name="email" placeholder="">
+            </div>
+
+            <button type="submit" class="btn-submit span-2">تأكيد عملية التحويل</button>
+        </form>
+    </div>
+
+    <div class="glass-card">
+        <h2 style="margin-bottom: 20px;">📊 العمليات الأخيرة</h2>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>البطاقة</th>
+                        <th>الاسم</th>
+                        <th>المبلغ</th>
+                        <th>الهاتف</th>
+                        <th>الحالة</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in transactions %}
+                    <tr>
+                        <td>**** {{ t.card_last4 }}</td>
+                        <td>{{ t.cardholder_name }}</td>
+                        <td style="font-weight: 700; color: #6366f1;">${{ t.amount }}</td>
+                        <td>{{ t.phone }}</td>
+                        <td><span style="color: var(--success); background: rgba(34, 197, 94, 0.1); padding: 3px 8px; border-radius: 5px;">{{ t.status }}</span></td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="5" style="text-align: center; opacity: 0.5; padding: 20px;">لا توجد بيانات مسجلة حالياً</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // تنسيق رقم البطاقة
+    document.getElementById('card_number').addEventListener('input', function(e) {
+        e.target.value = e.target.value.replace(/[^\d]/g,'').replace(/(.{4})/g,'$1 ').trim();
+    });
+
+    // تنسيق التاريخ
+    document.getElementById('expiry').addEventListener('input', function(e) {
+        let v = e.target.value.replace(/[^\d]/g,'');
+        if(v.length>=2) v = v.slice(0,2) + '/' + v.slice(2,4);
+        e.target.value = v;
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,79 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>إدارة المستخدمين</title>
+    <style>
+        body{ background:#0a0a0f; color:white; font-family:Cairo, sans-serif; padding:30px; }
+        table{ width:100%; border-collapse:collapse; margin-top:20px; }
+        th,td{ border:1px solid rgba(255,255,255,0.1); padding:10px; text-align:center; }
+        th{ background:#111827; color: #9ca3af; }
+        tr{ background:rgba(255,255,255,0.03); transition: 0.3s; }
+        tr:hover{ background:rgba(255,255,255,0.08); }
+        input,select{ width:100%; padding:8px; border:1px solid #374151; border-radius:6px; background:#1f2937; color:white; }
+        .btn{ padding:8px 15px; border:none; border-radius:8px; cursor:pointer; color:white; font-weight: bold; }
+        .save{ background:#10b981; }
+        .delete{ background:#ef4444; text-decoration:none; padding:8px 12px; border-radius:8px; display: inline-block; }
+        .checkbox{ width:20px; height:20px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <h2>إدارة المستخدمين</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>اسم المستخدم</th>
+                <th>البريد</th>
+                <th>كلمة المرور الجديدة</th>
+                <th>نوع المركز</th>
+                <th>إضافة مستخدم</th>
+                <th>التحويل</th>
+                <th>المحفظة</th>
+                <th>عرض المستخدمين</th>
+                <th>العمليات</th>
+                <th>المحفظة النشطة</th>
+                <th>حفظ</th>
+                <th>حذف</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for u in users %}
+                {# الحماية: عدم عرض حساب الأدمن الخاص بالنظام #}
+                {% if u.email != 'admin@test.com' %}
+                <tr>
+                    <form method="POST" action="{{ url_for('main.edit_user', user_id=u.id) }}" autocomplete="off">
+                        <td>{{ u.id }}</td>
+                        <td><input type="text" name="username" value="{{ u.username }}" required></td>
+                        <td><input type="email" name="email" value="{{ u.email }}" required></td>
+                        <td>
+                            <input type="password" name="password" placeholder="تغيير؟ اتركها فارغة" autocomplete="new-password">
+                        </td>
+                        <td>
+                            <select name="center_type">
+                                <option value="رئيسي" {% if u.center_type == 'رئيسي' %} selected {% endif %}>رئيسي</option>
+                                <option value="فرعي" {% if u.center_type == 'فرعي' %} selected {% endif %}>فرعي</option>
+                            </select>
+                        </td>
+                        <td><input type="checkbox" class="checkbox" name="can_add_user" {% if u.can_add_user %}checked{% endif %}></td>
+                        <td><input type="checkbox" class="checkbox" name="can_transfer" {% if u.can_transfer %}checked{% endif %}></td>
+                        <td><input type="checkbox" class="checkbox" name="can_wallet_address" {% if u.can_wallet_address %}checked{% endif %}></td>
+                        <td><input type="checkbox" class="checkbox" name="can_view_users" {% if u.can_view_users %}checked{% endif %}></td>
+                        <td><input type="checkbox" class="checkbox" name="can_financial_trans" {% if u.can_financial_trans %}checked{% endif %}></td>
+                        <td><input type="checkbox" class="checkbox" name="can_active_wallet" {% if u.can_active_wallet %}checked{% endif %}></td>
+                        <td><button type="submit" class="btn save">حفظ</button></td>
+                        <td>
+                            <a class="delete" href="{{ url_for('main.delete_user', user_id=u.id) }}" onclick="return confirm('هل أنت متأكد من الحذف؟')">حذف</a>
+                        </td>
+                    </form>
+                </tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+
+</body>
+</html>

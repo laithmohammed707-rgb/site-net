@@ -1,0 +1,89 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>لوحة التحكم الرئيسية</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+        body { background: #0a0a0f; color: white; font-family: 'Cairo', sans-serif; margin: 0; display: flex; }
+        
+        .sidebar { width: 250px; height: 100vh; background: rgba(255,255,255,0.02); border-left: 1px solid rgba(255,255,255,0.1); padding: 20px; }
+        .sidebar h2 { font-size: 20px; border-bottom: 1px solid #333; padding-bottom: 15px; text-align: center; }
+        
+        .menu-item { display: block; padding: 15px; color: #ccc; text-decoration: none; border-radius: 10px; margin-bottom: 5px; transition: 0.3s; }
+        .menu-item:hover { background: rgba(99, 102, 241, 0.2); color: #8b5cf6; }
+        
+        .main-content { flex: 1; padding: 40px; }
+        .card-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 30px; }
+        .card { background: rgba(255,255,255,0.03); padding: 20px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); text-align: center; }
+        
+        .btn-logout { display: inline-block; background: #ef4444; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-size: 14px; margin-top: 10px; width: 80%; text-align: center; }
+        .btn-logout:hover { background: #dc2626; }
+    </style>
+</head>
+<body>
+
+<!-- في ملف dashboard.html أو ملف التنسيق العام -->
+<div class="sidebar">
+    <h2>القائمة الرئيسية</h2>
+    
+    {% if user.can_add_user == 1 %}
+    <a href="{{ url_for('main.add_user') }}" class="menu-item">➕ إضافة مستخدم</a>
+    {% endif %}
+
+    {% if user.can_financial_trans == 1 %}
+     <a href="{{ url_for('transfer.handle_transfer') }}" class="menu-item">💸 التحويلات</a>
+   
+    {% endif %}
+
+    {% if user.can_wallet_address == 1 %}
+    <a href="{{ url_for('main.wallet') }}" class="menu-item">👛 عنوان المحفظة</a>
+    {% endif %}
+    
+
+    <a href="{{ url_for('auth.logout') }}" class="btn-logout">تسجيل الخروج</a>
+</div>
+
+<div class="main-content">
+    <h1>مرحباً، {{ user.username }} 👋</h1>
+    <p>أهلاً بك في نظام الإدارة الخاص بك. استخدم القائمة الجانبية للتنقل.</p>
+
+    <div class="card-container">
+    {% if user.can_view_users == 1 %}
+    <div class="card">
+        <a href="{{ url_for('main.users') }}" style="text-decoration:none; color:inherit;">
+            <h3>👥 المستخدمين</h3>
+            <p>إدارة الحسابات والصلاحيات</p>
+        </a>
+    </div>
+    {% endif %}
+
+    {% if user.can_financial_trans == 1 %}
+    <div class="card">
+        <a href="{{ url_for('main.transactions') }}" style="text-decoration:none; color:inherit;">
+            <h3>💸 التحويلات</h3>
+            <p>مراجعة العمليات المالية</p>
+        </a>
+    </div>
+    {% endif %}
+
+    {% if user.can_active_wallet == 1 %}
+    <div class="card">
+        <a href="{{ url_for('main.active_wallet') }}" style="text-decoration:none; color:inherit;">
+            <h3>👛 المحفظة النشطة</h3>
+            <p>إدارة العناوين والإجراءات</p>
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+ 
+          
+
+           
+    </div>
+</div>
+
+</body>
+</html>
